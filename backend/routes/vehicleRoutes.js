@@ -32,9 +32,11 @@ router.post("/", async (req, res) => {
 
 router.post('/telemetry', async (req, res) => {
     try {
-        workerPool.run(req.body).catch(console.error);
+        const payload = await workerPool.run(req.body);
 
         res.status(202).json({ status: "accepted" });
+
+        redis.publish("vehicle:updates", JSON.stringify(payload)).catch(console.error);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
