@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const redis = require('../config/redis');
 const Vehicle = require("../models/Vehicle");
-const { Worker } = require('worker_threads');
+const workerPool = require("../config/workerPool");
 
 
 router.get("/", async (req, res) => {
@@ -32,13 +32,9 @@ router.post("/", async (req, res) => {
 
 router.post('/telemetry', async (req, res) => {
     try {
-        const { vehicleId, lat, lng, speed, fuel, status } = req.body;
-        const payload = { vehicleId, lat, lng, speed, fuel, status, timestamp: Date.now() };
+        workerPool.run(req.body).catch(console.error);
 
-        res.status(202).json({ status: 'accepted' });
-
-        redis.publish('vehicle:updates', JSON.stringify(payload))
-            .catch(console.error);
+        res.status(202).json({ status: "accepted" });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

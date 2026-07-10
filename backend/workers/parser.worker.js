@@ -1,15 +1,28 @@
-const { parentPort } = require('worker_threads');
-const redis = require('../config/redis');
+const redis = require("../config/redis");
 
-parentPort.on('message', async (rawData) => {
-  // Simulate heavy parsing (e.g., CSV, protobuf)
-  const parsed = parseData(rawData); // custom parsing
-  // Publish to Redis
-  await redis.publish('vehicle:updates', JSON.stringify(parsed));
-  parentPort.postMessage('done');
-});
+module.exports = async function parseTelemetry(data) {
 
-function parseData(raw) {
-  // parse raw buffer or string into vehicle object
-  return { vehicleId: raw.id, lat: raw.lat, lng: raw.lng, speed: raw.speed };
-}
+    // simulate heavy parsing
+    let calculation = 0;
+
+    for (let i = 0; i < 100000; i++) {
+        calculation += Math.sqrt(i);
+    }
+
+    const payload = {
+        vehicleId: data.vehicleId,
+        lat: data.lat,
+        lng: data.lng,
+        speed: data.speed,
+        fuel: data.fuel,
+        status: data.status,
+        timestamp: Date.now()
+    };
+
+    await redis.publish(
+        "vehicle:updates",
+        JSON.stringify(payload)
+    );
+
+    return payload;
+};
