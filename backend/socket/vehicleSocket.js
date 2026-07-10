@@ -1,5 +1,4 @@
 const vehicles = [
-
     {
         id: "VH-001",
         driver: "Arun",
@@ -11,8 +10,6 @@ const vehicles = [
             lng: 76.9558
         }
     },
-
-
     {
         id: "VH-002",
         driver: "Kumar",
@@ -24,8 +21,6 @@ const vehicles = [
             lng: 76.9600
         }
     },
-
-
     {
         id: "VH-003",
         driver: "Rahul",
@@ -37,46 +32,23 @@ const vehicles = [
             lng: 76.9500
         }
     }
-
 ];
 
 
 
-function sendVehicleUpdates(io){
-
-
-    setInterval(()=>{
-
-
-        vehicles.forEach(vehicle=>{
-
-
-            if(vehicle.status === "Moving"){
-
-
+function sendVehicleUpdates(io) {
+    setInterval(() => {
+        vehicles.forEach(vehicle => {
+            if (vehicle.status === "Moving") {
                 vehicle.location.lat += 0.0001;
-
                 vehicle.location.lng += 0.0001;
-
-
             }
-
-
         });
-
-
-
         io.emit(
             "vehicleUpdate",
             vehicles
         );
-
-
-    },3000);
-
-
+    }, 3000);
 }
-
-
 
 module.exports = sendVehicleUpdates;
