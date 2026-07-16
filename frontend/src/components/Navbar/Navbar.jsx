@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import "./Navbar.css";
 
@@ -6,6 +6,32 @@ function Navbar(){
     const navigate = useNavigate();
     const user = JSON.parse(localStorage.getItem("user") || "{}");
     const [searchQuery, setSearchQuery] = useState("");
+    const [showNotifications, setShowNotifications] = useState(false);
+    const [notifications, setNotifications] = useState([]);
+    const [unreadCount, setUnreadCount] = useState(0);
+    const notificationRef = useRef(null);
+
+    useEffect(() => {
+        // Generate initial notifications
+        const initialNotifs = [
+            { id: 1, type: "alert", message: "TRUCK-001 overspeeding at 95 km/h", time: "2 min ago", read: false, severity: "critical" },
+            { id: 2, type: "maintenance", message: "TRUCK-003 maintenance due in 3 days", time: "15 min ago", read: false, severity: "warning" },
+            { id: 3, type: "info", message: "Fuel fraud alert: TRUCK-005", time: "1 hour ago", read: false, severity: "info" },
+            { id: 4, type: "system", message: "System update completed successfully", time: "2 hours ago", read: true, severity: "info" },
+            { id: 5, type: "alert", message: "Driver Rajesh scored 92% this week", time: "3 hours ago", read: true, severity: "success" },
+        ];
+        setNotifications(initialNotifs);
+        setUnreadCount(initialNotifs.filter(n => !n.read).length);
+
+        // Close panel on outside click
+        const handleClickOutside = (e) => {
+            if (notificationRef.current && !notificationRef.current.contains(e.target)) {
+                setShowNotifications(false);
+            }
+        };
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => document.removeEventListener("mousedown", handleClickOutside);
+    }, []);
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -17,6 +43,35 @@ function Navbar(){
         e.preventDefault();
         if (searchQuery.trim()) {
             navigate(`/vehicles?search=${encodeURIComponent(searchQuery)}`);
+        }
+    };
+
+    const markAllRead = () => {
+        setNotifications(notifications.map(n => ({ ...n, read: true })));
+        setUnreadCount(0);
+    };
+
+    const markAsRead = (id) => {
+        setNotifications(notifications.map(n => n.id === id ? { ...n, read: true } : n));
+        setUnreadCount(prev => Math.max(0, prev - 1));
+    };
+
+    const getNotificationIcon = (type) => {
+        switch(type) {
+            case "alert": return "🚨";
+            case "maintenance": return "🔧";
+            case "info": return "ℹ️";
+            case "system": return "⚙️";
+            default: return "🔔";
+        }
+    };
+
+    const getNotificationColor = (severity) => {
+        switch(severity) {
+            case "critical": return { bg: "rgba(239,68,68,0.1)", text: "#ef4444", border: "#ef4444" };
+            case "warning": return { bg: "rgba(245,158,11,0.1)", text: "#f59e0b", border: "#f59e0b" };
+            case "success": return { bg: "rgba(34,197,94,0.1)", text: "#22c55e", border: "#22c55e" };
+            default: return { bg: "rgba(59,130,246,0.1)", text: "#3b82f6", border: "#3b82f6" };
         }
     };
 
@@ -40,9 +95,87 @@ function Navbar(){
                     <span className="status-indicator"></span>
                     All Systems Operational
                 </div>
-                <div className="navbar-notification">
+                <div className="navbar-notification" onClick={() => setShowNotifications(!showNotifications)} ref={notificationRef}>
                     <span>🔔</span>
-                    <span className="notification-badge">3</span>
+                    {unreadCount > 0 && <span className="notification-badge">{unreadCount}</span>}
+                    
+                    {showNotifications && (
+                        <div className="notification-panel">
+                            <div className="notification-panel-header">
+                                <span style={{ fontWeight: 600, fontSize: 14 }}>Notifications</span>
+                                <button onClick={markAllRead} style={{
+                                    background: "none", border: "none", color: "#6366f1",
+                                    fontSize: 12, cursor: "pointer", fontWeight: 500
+                                }}>
+                                    Mark all read
+                                </button>
+                            </div>
+                            <div className="notification-list">
+                                {notifications.length === 0 ? (
+                                    <div style={{ padding: 24, textAlign: "center", color: "#64748b", fontSize: 13 }}>
+                                        No notifications
+                                    </div>
+                                ) : (
+                                    notifications.map((notif) => {
+                                        const colors = getNotificationColor(notif.severity);
+                                        return (
+                                            <div
+                                                key={notif.id}
+                                                className={`notification-item ${!notif.read ? "unread" : ""}`}
+                                                onClick={() => markAsRead(notif.id)}
+                                                style={{
+                                                    padding: "12px 16px",
+                                                    display: "flex",
+                                                    alignItems: "flex-start",
+                                                    gap: 12,
+                                                    cursor: "pointer",
+                                                    borderLeft: `3px solid ${!notif.read ? colors.border : "transparent"}`,
+                                                    background: !notif.read ? "rgba(255,255,255,0.02)" : "transparent",
+                                                    borderBottom: "1px solid rgba(255,255,255,0.05)",
+                                                    transition: "all 0.2s"
+                                                }}
+                                            >
+                                                <div style={{
+                                                    width: 32, height: 32, borderRadius: 8,
+                                                    background: colors.bg,
+                                                    display: "flex", alignItems: "center", justifyContent: "center",
+                                                    fontSize: 14, flexShrink: 0
+                                                }}>
+                                                    {getNotificationIcon(notif.type)}
+                                                </div>
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                    <div style={{
+                                                        fontSize: 13, color: "#e2e8f0",
+                                                        fontWeight: !notif.read ? 600 : 400,
+                                                        lineHeight: 1.4
+                                                    }}>
+                                                        {notif.message}
+                                                    </div>
+                                                    <div style={{ fontSize: 11, color: "#64748b", marginTop: 4 }}>
+                                                        {notif.time}
+                                                    </div>
+                                                </div>
+                                                {!notif.read && (
+                                                    <div style={{
+                                                        width: 8, height: 8, borderRadius: "50%",
+                                                        background: "#6366f1", flexShrink: 0, marginTop: 4
+                                                    }}></div>
+                                                )}
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+                            <div className="notification-panel-footer">
+                                <button onClick={() => { setShowNotifications(false); navigate("/alerts"); }} style={{
+                                    background: "none", border: "none", color: "#6366f1",
+                                    fontSize: 12, cursor: "pointer", fontWeight: 500, width: "100%", padding: 10
+                                }}>
+                                    View all alerts →
+                                </button>
+                            </div>
+                        </div>
+                    )}
                 </div>
                 <div className="navbar-user">
                     <span className="user-avatar">👤</span>

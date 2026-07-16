@@ -27,6 +27,7 @@ function Sidebar(){
         
         { path: "/voice-ai", label: "AI Assistant", icon: "🤖", section: "Intelligence" },
         { path: "/settings", label: "Settings", icon: "⚙️", section: "System" },
+        { path: "/admin", label: "Admin", icon: "🛡️", section: "System" },
     ];
 
     const isActive = (path) => location.pathname === path;

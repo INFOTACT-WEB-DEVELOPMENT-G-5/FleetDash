@@ -50,7 +50,7 @@ function CommandCenter() {
     <Layout>
       <div className="command-center">
         <div className="cc-header">
-          <div>
+          <div className="cc-header-left">
             <h1 className="cc-title">🚀 Command Center</h1>
             <p className="cc-subtitle">Real-time Fleet Operations Control Room</p>
           </div>
@@ -104,7 +104,10 @@ function CommandCenter() {
           {activeTab === "alerts" && (
             <div className="cc-alerts-list">
               {loading ? (
-                <div className="cc-loading">Loading command center data...</div>
+                <div className="cc-loading">
+                  <div className="loading-spinner"></div>
+                  Loading command center data...
+                </div>
               ) : alerts.length === 0 ? (
                 <div className="cc-empty">No active alerts. Fleet operating normally.</div>
               ) : (

@@ -15,6 +15,10 @@ const vehicleSchema = new mongoose.Schema({
         default:"Unknown"
     },
 
+    phone:{
+        type:String,
+        default:"+91-9876543210"
+    },
 
     status:{
         type:String,

@@ -15,6 +15,7 @@ function Vehicles() {
   const [formData, setFormData] = useState({
     vehicleId: "",
     driver: "",
+    phone: "",
     status: "Active",
     speed: 0,
     fuel: 100,
@@ -119,7 +120,7 @@ function Vehicles() {
             <option value="Active">Active</option>
             <option value="Offline">Offline</option>
           </select>
-          <button className="btn btn-primary" onClick={() => { setEditingVehicle(null); setFormData({ vehicleId: "", driver: "", status: "Active", speed: 0, fuel: 100, distance: 0, location: { lat: 19.0760, lng: 72.8777 } }); setShowModal(true); }}>
+          <button className="btn btn-primary" onClick={() => { setEditingVehicle(null); setFormData({ vehicleId: "", driver: "", phone: "", status: "Active", speed: 0, fuel: 100, distance: 0, location: { lat: 19.0760, lng: 72.8777 } }); setShowModal(true); }}>
             ➕ Add Vehicle
           </button>
         </div>
@@ -164,12 +165,11 @@ function Vehicles() {
               <tr>
                 <th>Vehicle ID</th>
                 <th>Driver</th>
+                <th>Contact</th>
                 <th>Status</th>
                 <th>Speed</th>
                 <th>Fuel</th>
                 <th>Distance</th>
-                <th>Location</th>
-                <th>Last Updated</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -178,6 +178,7 @@ function Vehicles() {
                 <tr key={v._id}>
                   <td style={{ fontWeight: 600, color: "#e2e8f0" }}>{v.vehicleId}</td>
                   <td>{v.driver || "Unknown"}</td>
+                  <td style={{ fontSize: 12, color: "#94a3b8" }}>{v.phone || "+91-9876543210"}</td>
                   <td>
                     <span className={`status-badge ${v.status === "Active" ? "status-active" : "status-offline"}`}>
                       {v.status === "Active" ? "🟢 Active" : "⭕ Offline"}
@@ -197,15 +198,9 @@ function Vehicles() {
                     </div>
                   </td>
                   <td>{(v.distance || 0).toLocaleString()} km</td>
-                  <td style={{ fontSize: 11, color: "#64748b" }}>
-                    {v.location?.lat?.toFixed(2)}, {v.location?.lng?.toFixed(2)}
-                  </td>
-                  <td style={{ fontSize: 11, color: "#64748b" }}>
-                    {v.lastUpdated ? new Date(v.lastUpdated).toLocaleString() : "N/A"}
-                  </td>
                   <td>
                     <div style={{ display: "flex", gap: 6 }}>
-                      <button className="btn btn-secondary btn-sm" onClick={() => { setEditingVehicle(v); setFormData({ vehicleId: v.vehicleId, driver: v.driver || "", status: v.status, speed: v.speed || 0, fuel: v.fuel || 100, distance: v.distance || 0, location: v.location || { lat: 19.0760, lng: 72.8777 } }); setShowModal(true); }}>✏️</button>
+                      <button className="btn btn-secondary btn-sm" onClick={() => { setEditingVehicle(v); setFormData({ vehicleId: v.vehicleId, driver: v.driver || "", phone: v.phone || "", status: v.status, speed: v.speed || 0, fuel: v.fuel || 100, distance: v.distance || 0, location: v.location || { lat: 19.0760, lng: 72.8777 } }); setShowModal(true); }}>✏️</button>
                       <button className="btn btn-danger btn-sm" onClick={() => handleDelete(v._id)}>🗑️</button>
                     </div>
                   </td>
@@ -231,6 +226,10 @@ function Vehicles() {
               <div className="form-group">
                 <label>Driver</label>
                 <input type="text" value={formData.driver} onChange={(e) => setFormData({ ...formData, driver: e.target.value })} placeholder="Driver name" />
+              </div>
+              <div className="form-group">
+                <label>Phone</label>
+                <input type="text" value={formData.phone} onChange={(e) => setFormData({ ...formData, phone: e.target.value })} placeholder="+91-9876543210" />
               </div>
               <div className="form-group">
                 <label>Status</label>

@@ -70,6 +70,8 @@ const addVehicle = async(req,res)=>{
 
             driver:req.body.driver,
 
+            phone:req.body.phone,
+
             status:req.body.status,
 
             speed:req.body.speed,

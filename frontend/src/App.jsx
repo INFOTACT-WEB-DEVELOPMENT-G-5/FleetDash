@@ -14,6 +14,8 @@ import Trips from "./pages/Trips";
 import Telemetry from "./pages/Telemetry";
 import Geofence from "./pages/Geofence";
 import Maintenance from "./pages/Maintenance";
+import Settings from "./pages/Settings";
+import Admin from "./pages/Admin";
 import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
 
 function App() {
@@ -36,6 +38,8 @@ function App() {
         <Route path="/telemetry" element={<ProtectedRoute><Telemetry /></ProtectedRoute>} />
         <Route path="/geofence" element={<ProtectedRoute><Geofence /></ProtectedRoute>} />
         <Route path="/maintenance" element={<ProtectedRoute><Maintenance /></ProtectedRoute>} />
+        <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
       </Routes>
     </BrowserRouter>
   );
