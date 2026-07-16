@@ -1,91 +1,66 @@
+require("dotenv").config();
+
 const express = require("express");
 const cors = require("cors");
 const http = require("http");
 
-require("dotenv").config();
-
 const connectDB = require("./config/db");
-
-const vehicleRoutes = require("./routes/vehicleRoutes");
-
-
-const { Server } = require("socket.io");
-
+const { initSocket } = require("./socket/socket");
 
 const app = express();
 
-
+// Middleware
 app.use(cors());
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true }));
 
-app.use(express.json());
-
-
+// Connect to MongoDB
 connectDB();
 
+// ===================== API ROUTES =====================
 
+// Auth Routes
+app.use("/api/auth", require("./routes/authRoutes"));
 
-app.use(
-    "/api/vehicles",
-    vehicleRoutes
-);
+// User Routes
+app.use("/api/users", require("./routes/userRoutes"));
 
+// Vehicle Routes
+app.use("/api/vehicles", require("./routes/vehicleRoutes"));
 
+// AI Routes (includes maintenance, health, drivers, route, fuel, geofence, reports, analytics, audit, voice)
+app.use("/api/ai", require("./routes/aiRoutes"));
 
-app.get("/", (req,res)=>{
-
-    res.send("FleetDash Backend Running");
-
+// Health check
+app.get("/api/health", (req, res) => {
+  res.json({
+    status: "ok",
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
 });
 
+// 404 handler
+app.use((req, res) => {
+  res.status(404).json({ message: "Route not found" });
+});
 
+// Error handler
+app.use((err, req, res, next) => {
+  console.error("Server Error:", err.message);
+  res.status(500).json({ message: "Internal server error", error: err.message });
+});
 
 const server = http.createServer(app);
 
+// Initialize Socket.IO
+initSocket(server);
 
-
-const io = new Server(server,{
-
-    cors:{
-        origin:"http://localhost:5173"
-    }
-
-});
-
-
-
-io.on("connection",(socket)=>{
-
-
-    console.log(
-        "Client Connected:",
-        socket.id
-    );
-
-
-
-    socket.on("disconnect",()=>{
-
-        console.log(
-            "Client Disconnected"
-        );
-
-    });
-
-
-});
-
-
+// Start telemetry worker for real-time data simulation
+require("./workers/telemetryWorker");
 
 const PORT = process.env.PORT || 5000;
-
-
-
-server.listen(PORT,()=>{
-
-
-    console.log(
-        `Server running on ${PORT}`
-    );
-
-
+server.listen(PORT, () => {
+  console.log(`FleetDash Server running on port ${PORT}`);
+  console.log(`API: http://localhost:${PORT}/api`);
 });

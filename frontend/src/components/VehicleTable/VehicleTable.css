@@ -1,0 +1,41 @@
+.vehicle-table {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+}
+
+.vehicle-table h2 {
+  font-size: 16px;
+  margin: 0 0 16px 0;
+  color: var(--text-primary);
+}
+
+.vehicle-table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.vehicle-table th {
+  text-align: left;
+  padding: 10px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.vehicle-table td {
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.vehicle-table tr:hover td {
+  background: var(--hover-bg);
+}

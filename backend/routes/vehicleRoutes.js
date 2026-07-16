@@ -1,47 +1,61 @@
 const express = require("express");
+
 const router = express.Router();
 
-const Vehicle = require("../models/Vehicle");
+const {
+    getVehicles,
+    getVehicleById,
+    addVehicle,
+    updateVehicle,
+    deleteVehicle
+} = require("../controllers/vehicleController");
+
+const auth = require("../middleware/auth");
 
 
-router.get("/", async (req, res) => {
+// GET ALL VEHICLES
 
-    try {
-
-        const vehicles = await Vehicle.find();
-
-        res.json(vehicles);
-
-    } catch(error){
-
-        res.status(500).json({
-            message:error.message
-        });
-
-    }
-
-});
+router.get(
+    "/",
+    auth,
+    getVehicles
+);
 
 
-router.post("/", async (req,res)=>{
+// GET VEHICLE BY ID
 
-    try{
+router.get(
+    "/:id",
+    auth,
+    getVehicleById
+);
 
-        const vehicle = new Vehicle(req.body);
 
-        const savedVehicle = await vehicle.save();
+// ADD VEHICLE
 
-        res.json(savedVehicle);
+router.post(
+    "/",
+    auth,
+    addVehicle
+);
 
-    }catch(error){
 
-        res.status(400).json({
-            message:error.message
-        });
+// UPDATE VEHICLE
 
-    }
+router.put(
+    "/:id",
+    auth,
+    updateVehicle
+);
 
-});
+
+// DELETE VEHICLE
+
+router.delete(
+    "/:id",
+    auth,
+    deleteVehicle
+);
 
 
 module.exports = router;

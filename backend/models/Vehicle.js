@@ -9,34 +9,58 @@ const vehicleSchema = new mongoose.Schema({
         unique:true
     },
 
-    driverName:{
+
+    driver:{
         type:String,
-        required:true
+        default:"Unknown"
     },
+
 
     status:{
         type:String,
-        default:"Active"
+        default:"Offline"
     },
 
-    location:{
-        latitude:Number,
-        longitude:Number
-    },
 
     speed:{
         type:Number,
         default:0
     },
 
+
+    location:{
+
+        lat:{
+            type:Number,
+            default:0
+        },
+
+        lng:{
+            type:Number,
+            default:0
+        }
+
+    },
+
+
     fuel:{
         type:Number,
         default:100
+    },
+
+
+    distance:{
+        type:Number,
+        default:0
+    },
+
+
+    lastUpdated:{
+        type:Date,
+        default:Date.now
     }
 
-},
-{
-    timestamps:true
+
 });
 
 
