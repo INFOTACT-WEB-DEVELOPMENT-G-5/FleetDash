@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const redis = require('../config/redis');
+const redisConfig = require('../config/redis');
 const Vehicle = require("../models/Vehicle");
 const workerPool = require("../config/workerPool");
 
@@ -36,7 +36,9 @@ router.post('/telemetry', async (req, res) => {
 
         res.status(202).json({ status: "accepted" });
 
-        redis.publish("vehicle:updates", JSON.stringify(payload)).catch(console.error);
+        if (redisConfig.isRedisConnected()) {
+            redisConfig.redis.publish("vehicle:updates", JSON.stringify(payload)).catch(console.error);
+        }
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
