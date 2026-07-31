@@ -1,0 +1,23 @@
+.alerts-box {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.alerts-box h2 {
+  font-size: 16px;
+  margin: 0 0 16px 0;
+  color: var(--text-primary);
+}
+
+.alert {
+  padding: 10px 14px;
+  margin-bottom: 6px;
+  background: rgba(239, 68, 68, 0.1);
+  border-left: 3px solid #ef4444;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--text-primary);
+}

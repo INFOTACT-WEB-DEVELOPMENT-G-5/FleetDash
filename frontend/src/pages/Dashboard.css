@@ -1,0 +1,45 @@
+.dashboard-header {
+  margin-bottom: 24px;
+}
+
+.dashboard-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.dashboard-header p {
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 768px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.vehicle-table-section {
+  margin-bottom: 24px;
+}
+
+.live-alerts-section {
+  margin-bottom: 24px;
+}
+
+.live-map-section {
+  margin-bottom: 24px;
+}
+
+.live-map-section .card {
+  padding: 0;
+  overflow: hidden;
+}
