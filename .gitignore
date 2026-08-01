@@ -8,3 +8,12 @@ backend/dist/
 */node_modules/
 */node_modules
 **/node_modules
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.production
+.env.test
+backend/.env
+frontend/.env.production

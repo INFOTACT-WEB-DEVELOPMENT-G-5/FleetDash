@@ -3,9 +3,9 @@ const router = express.Router();
 const redisConfig = require('../config/redis');
 const Vehicle = require("../models/Vehicle");
 const workerPool = require("../config/workerPool");
+const { authenticateToken, requireRole } = require("../middleware/authMiddleware");
 
-
-router.get("/", async (req, res) => {
+router.get("/", authenticateToken, async (req, res) => {
     try {
         const vehicles = await Vehicle.find();
         res.json(vehicles);
@@ -17,7 +17,7 @@ router.get("/", async (req, res) => {
 });
 
 
-router.post("/", async (req, res) => {
+router.post("/", authenticateToken, requireRole(['Manager', 'Admin']), async (req, res) => {
     try {
         const vehicle = new Vehicle(req.body);
         const savedVehicle = await vehicle.save();
@@ -30,7 +30,7 @@ router.post("/", async (req, res) => {
 });
 
 
-router.post('/telemetry', async (req, res) => {
+router.post('/telemetry', authenticateToken, async (req, res) => {
     try {
         const payload = await workerPool.run(req.body);
 

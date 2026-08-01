@@ -9,21 +9,37 @@ require("dotenv").config();
 const connectDB = require("./config/db");
 const vehicleRoutes = require("./routes/vehicleRoutes");
 const authRoutes = require("./routes/authRoutes");
+const driverRoutes = require("./routes/driverRoutes");
+const tripRoutes = require("./routes/tripRoutes");
+const alertRoutes = require("./routes/alertRoutes");
+const aiRoutes = require("./routes/aiRoutes");
+const enterpriseRoutes = require("./routes/enterpriseRoutes");
 const User = require("./models/User");
 
 const { Server } = require("socket.io");
 
 const app = express();
-app.use(cors());
+
+// Secure CORS configuration
+const allowedOrigins = process.env.ALLOWED_ORIGINS 
+  ? process.env.ALLOWED_ORIGINS.split(',') 
+  : ['http://localhost:5173'];
+
+app.use(cors({
+  origin: allowedOrigins,
+  credentials: true
+}));
 app.use(express.json());
 
 connectDB();
 
 app.use("/api/auth", authRoutes);
-app.use(
-    "/api/vehicles",
-    vehicleRoutes
-);
+app.use("/api/vehicles", vehicleRoutes);
+app.use("/api/drivers", driverRoutes);
+app.use("/api/trips", tripRoutes);
+app.use("/api/alerts", alertRoutes);
+app.use("/api/ai", aiRoutes);
+app.use("/api/enterprise", enterpriseRoutes);
 
 app.get("/", (req, res) => {
     res.send("FleetDash Backend Running");
@@ -32,9 +48,15 @@ app.get("/", (req, res) => {
 
 const server = http.createServer(app);
 
-const io = new Server(server, { cors: { origin: 'http://localhost:5173' } });
+const socketOrigin = process.env.SOCKET_ORIGIN || 'http://localhost:5173';
+const io = new Server(server, { cors: { origin: socketOrigin, credentials: true } });
 
 const createDemoUser = async () => {
+  // Only create demo user in development mode
+  if (process.env.NODE_ENV === 'production') {
+    return;
+  }
+
   try {
     const userCount = await User.countDocuments();
     if (userCount === 0) {
@@ -44,7 +66,7 @@ const createDemoUser = async () => {
         role: 'Manager'
       });
       await demoUser.save();
-      console.log('✅ Demo user created: manager@fleetdash.com / password123');
+      console.log('✅ Demo user created: manager@fleetdash.com / [REDACTED]');
     }
   } catch (error) {
     console.error('Error creating demo user:', error.message);
@@ -67,7 +89,7 @@ const startServer = async () => {
         console.log(`Server running on ${PORT}`);
     });
 
-    // Create demo user after DB is connected
+    // Create demo user after DB is connected (development only)
     setTimeout(() => {
         createDemoUser();
     }, 1000);
