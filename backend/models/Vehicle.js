@@ -6,17 +6,23 @@ const vehicleSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    driverName: {
+    driver: {
         type: String,
         required: true
+    },
+    driverName: {
+        type: String
+    },
+    phone: {
+        type: String
     },
     status: {
         type: String,
         default: "Active"
     },
     location: {
-        latitude: Number,
-        longitude: Number
+        lat: Number,
+        lng: Number
     },
     speed: {
         type: Number,
@@ -25,6 +31,14 @@ const vehicleSchema = new mongoose.Schema({
     fuel: {
         type: Number,
         default: 100
+    },
+    distance: {
+        type: Number,
+        default: 0
+    },
+    type: {
+        type: String,
+        default: "Truck"
     }
 },
     {

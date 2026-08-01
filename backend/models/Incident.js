@@ -1,6 +1,10 @@
 const mongoose = require('mongoose');
 
 const incidentSchema = new mongoose.Schema({
+  incidentId: {
+    type: String,
+    unique: true
+  },
   type: {
     type: String,
     required: true
