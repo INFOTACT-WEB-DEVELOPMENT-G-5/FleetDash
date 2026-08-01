@@ -128,9 +128,10 @@ export const enterpriseAPI = {
 // ===================== ADMIN API =====================
 
 export const adminAPI = {
-  getUsers: () => API.get("/users"),
-  createUser: (data) => API.post("/users/create", data),
-  updateUser: (id, data) => API.put(`/users/${id}`, data),
-  deleteUser: (id) => API.delete(`/users/${id}`),
+  getUsers: () => API.get("/auth/users"),
+  createUser: (data) => API.post("/auth/users", data),
+  updateUser: (id, data) => API.put(`/auth/users/${id}`, data),
+  deleteUser: (id) => API.delete(`/auth/users/${id}`),
+  deactivateUser: (id) => API.put(`/auth/users/${id}/deactivate`),
   getSystemHealth: () => API.get("/health"),
 };

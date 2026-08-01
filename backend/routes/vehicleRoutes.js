@@ -30,6 +30,46 @@ router.post("/", authenticateToken, requireRole(['Manager', 'Admin']), async (re
 });
 
 
+router.get("/:id", authenticateToken, async (req, res) => {
+    try {
+        const vehicle = await Vehicle.findOne({ vehicleId: req.params.id });
+        if (!vehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+        res.json(vehicle);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+router.put("/:id", authenticateToken, requireRole(['Manager', 'Admin']), async (req, res) => {
+    try {
+        const vehicle = await Vehicle.findOneAndUpdate(
+            { vehicleId: req.params.id },
+            req.body,
+            { new: true }
+        );
+        if (!vehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+        res.json(vehicle);
+    } catch (error) {
+        res.status(400).json({ message: error.message });
+    }
+});
+
+router.delete("/:id", authenticateToken, requireRole(['Manager', 'Admin']), async (req, res) => {
+    try {
+        const vehicle = await Vehicle.findOneAndDelete({ vehicleId: req.params.id });
+        if (!vehicle) {
+            return res.status(404).json({ message: "Vehicle not found" });
+        }
+        res.json({ message: "Vehicle deleted" });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 router.post('/telemetry', authenticateToken, async (req, res) => {
     try {
         const payload = await workerPool.run(req.body);

@@ -5,6 +5,57 @@ import API from "../../api/axios";
 import socket from "../../services/socket";
 import "./Navbar.css";
 
+function ProfileDropdown({ user, onLogout }) {
+  const [open, setOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const menuItems = [
+    { label: "Profile", icon: "👤", action: () => { setOpen(false); navigate("/profile"); } },
+    { label: "Settings", icon: "⚙️", action: () => { setOpen(false); navigate("/settings"); } },
+    { label: "Manage Users", icon: "👥", action: () => { setOpen(false); navigate("/users"); } },
+    { label: "Role Info", icon: "🔑", action: () => { setOpen(false); alert(`Role: ${user.role || "Fleet Manager"}\nPermissions: Full access`); } },
+    { label: "Logout", icon: "🚪", action: () => { setOpen(false); onLogout(); } }
+  ];
+
+  return (
+    <div className="profile-dropdown" ref={dropdownRef}>
+      <button className="profile-dropdown-toggle" onClick={() => setOpen(!open)}>
+        <span style={{ fontSize: 12 }}>▼</span>
+      </button>
+      {open && (
+        <div className="profile-dropdown-menu">
+          <div className="profile-dropdown-header">
+            <div className="profile-avatar-large">👤</div>
+            <div>
+              <div style={{ fontWeight: 600, fontSize: 14 }}>{user.name || "Admin"}</div>
+              <div style={{ fontSize: 12, opacity: 0.7 }}>{user.email || "admin@fleetdash.com"}</div>
+              <div style={{ fontSize: 11, opacity: 0.5, marginTop: 2 }}>{user.role || "Fleet Manager"}</div>
+            </div>
+          </div>
+          <div className="profile-dropdown-divider" />
+          {menuItems.map((item, index) => (
+            <button key={index} className="profile-dropdown-item" onClick={item.action}>
+              <span>{item.icon}</span>
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function Navbar() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user") || "{}");
@@ -335,16 +386,14 @@ function Navbar() {
             </div>
           )}
         </div>
-        <div className="navbar-user">
+        <div className="navbar-user" style={{ position: "relative" }}>
           <span className="user-avatar">👤</span>
           <div>
             <div className="user-name">{user.name || "Admin"}</div>
             <div className="user-role">{user.role || "Fleet Manager"}</div>
           </div>
+          <ProfileDropdown user={user} onLogout={handleLogout} />
         </div>
-        <button className="logout-btn" onClick={handleLogout}>
-          Logout
-        </button>
       </div>
     </div>
   );

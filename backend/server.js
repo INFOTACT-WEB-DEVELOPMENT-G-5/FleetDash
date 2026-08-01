@@ -14,6 +14,7 @@ const tripRoutes = require("./routes/tripRoutes");
 const alertRoutes = require("./routes/alertRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const enterpriseRoutes = require("./routes/enterpriseRoutes");
+const auditRoutes = require("./routes/auditRoutes");
 const User = require("./models/User");
 
 const { Server } = require("socket.io");
@@ -40,6 +41,7 @@ app.use("/api/trips", tripRoutes);
 app.use("/api/alerts", alertRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/enterprise", enterpriseRoutes);
+app.use("/api/audit", auditRoutes);
 
 app.get("/", (req, res) => {
     res.send("FleetDash Backend Running");

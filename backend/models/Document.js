@@ -8,7 +8,7 @@ const documentSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['Insurance', 'Registration', 'Pollution', 'License', 'Compliance', 'Maintenance', 'Other']
+    enum: ['Insurance', 'Registration', 'Fitness Certificate', 'Pollution Certificate', 'Driving License', 'Medical Certificate', 'Training Certificate', 'Pollution', 'License', 'Compliance', 'Maintenance', 'Other']
   },
   vehicleId: {
     type: String
@@ -16,12 +16,21 @@ const documentSchema = new mongoose.Schema({
   driverId: {
     type: String
   },
+  documentNumber: {
+    type: String
+  },
+  issueDate: {
+    type: Date
+  },
   expiryDate: {
     type: Date
   },
+  notes: {
+    type: String
+  },
   status: {
     type: String,
-    enum: ['Active', 'Expired', 'Pending', 'Renewed'],
+    enum: ['Active', 'Valid', 'Expired', 'Pending', 'Renewed', 'Expiring Soon'],
     default: 'Active'
   }
 }, {

@@ -1,7 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const rateLimit = require("express-rate-limit");
-const { login, register } = require("../controllers/authController");
+const { login, register, getAllUsers, getUserById, updateUser, deleteUser, deactivateUser, createUser } = require("../controllers/authController");
+const { authenticateToken, requireRole } = require("../middleware/authMiddleware");
 
 const isProduction = process.env.NODE_ENV === 'production';
 
@@ -29,5 +30,13 @@ const registerLimiter = rateLimit({
 
 router.post("/login", loginLimiter, login);
 router.post("/register", registerLimiter, register);
+
+// User Management Routes
+router.post("/users", authenticateToken, requireRole(['Admin', 'Manager']), createUser);
+router.get("/users", authenticateToken, requireRole(['Admin', 'Manager']), getAllUsers);
+router.get("/users/:id", authenticateToken, requireRole(['Admin', 'Manager']), getUserById);
+router.put("/users/:id", authenticateToken, requireRole(['Admin']), updateUser);
+router.delete("/users/:id", authenticateToken, requireRole(['Admin']), deleteUser);
+router.put("/users/:id/deactivate", authenticateToken, requireRole(['Admin']), deactivateUser);
 
 module.exports = router;

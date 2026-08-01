@@ -8,6 +8,12 @@ const Incident = require('./models/Incident');
 const WorkOrder = require('./models/WorkOrder');
 const Document = require('./models/Document');
 const Cost = require('./models/Cost');
+const Driver = require('./models/Driver');
+const Trip = require('./models/Trip');
+const Alert = require('./models/Alert');
+const Fuel = require('./models/Fuel');
+const Geofence = require('./models/Geofence');
+const Notification = require('./models/Notification');
 
 // ============ VEHICLES (15 records) ============
 const vehicles = [
@@ -62,6 +68,105 @@ const documents = [
   { name: "Pollution Certificate FD-003", type: "Pollution", vehicleId: "FD-003", expiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000), status: "Active" },
   { name: "Driver License - Arun Kumar", type: "License", driverId: "d1", expiryDate: new Date(Date.now() + 730 * 24 * 60 * 60 * 1000), status: "Active" },
   { name: "Compliance Certificate", type: "Compliance", expiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), status: "Active" }
+];
+
+// ============ DRIVERS (10 records) ============
+const drivers = [
+  { name: "Arun Kumar", email: "arun@fleetdash.com", phone: "+91-9876543210", licenseNumber: "DL-2024-001", experience: 8, currentStatus: "Available", safetyScore: 92, assignedVehicle: "FD-001", totalTrips: 245, rating: 4.8 },
+  { name: "Rahul Sharma", email: "rahul@fleetdash.com", phone: "+91-9876543211", licenseNumber: "DL-2024-002", experience: 5, currentStatus: "On Trip", safetyScore: 88, assignedVehicle: "FD-002", totalTrips: 189, rating: 4.6 },
+  { name: "Priya Singh", email: "priya@fleetdash.com", phone: "+91-9876543212", licenseNumber: "DL-2024-003", experience: 12, currentStatus: "Available", safetyScore: 95, assignedVehicle: "FD-003", totalTrips: 412, rating: 4.9 },
+  { name: "Sunil Verma", email: "sunil@fleetdash.com", phone: "+91-9876543213", licenseNumber: "DL-2024-004", experience: 3, currentStatus: "Off Duty", safetyScore: 78, assignedVehicle: "FD-004", totalTrips: 67, rating: 4.2 },
+  { name: "Anita Patel", email: "anita@fleetdash.com", phone: "+91-9876543214", licenseNumber: "DL-2024-005", experience: 7, currentStatus: "On Trip", safetyScore: 85, assignedVehicle: "FD-005", totalTrips: 198, rating: 4.7 },
+  { name: "Vikram Joshi", email: "vikram@fleetdash.com", phone: "+91-9876543215", licenseNumber: "DL-2024-006", experience: 15, currentStatus: "Available", safetyScore: 90, assignedVehicle: "FD-006", totalTrips: 523, rating: 4.8 },
+  { name: "Kavya Reddy", email: "kavya@fleetdash.com", phone: "+91-9876543216", licenseNumber: "DL-2024-007", experience: 4, currentStatus: "On Leave", safetyScore: 82, assignedVehicle: "FD-007", totalTrips: 112, rating: 4.5 },
+  { name: "Manoj Kumar", email: "manoj@fleetdash.com", phone: "+91-9876543217", licenseNumber: "DL-2024-008", experience: 10, currentStatus: "On Trip", safetyScore: 87, assignedVehicle: "FD-008", totalTrips: 287, rating: 4.6 },
+  { name: "Deepa Nair", email: "deepa@fleetdash.com", phone: "+91-9876543218", licenseNumber: "DL-2024-009", experience: 6, currentStatus: "Available", safetyScore: 84, assignedVehicle: "FD-009", totalTrips: 156, rating: 4.4 },
+  { name: "Ramesh Iyer", email: "ramesh@fleetdash.com", phone: "+91-9876543219", licenseNumber: "DL-2024-010", experience: 11, currentStatus: "Off Duty", safetyScore: 81, assignedVehicle: "FD-010", totalTrips: 345, rating: 4.3 }
+];
+
+// ============ TRIPS (20 records) ============
+const trips = [
+  { vehicleId: "FD-001", driver: "Arun Kumar", origin: "Mumbai Hub", destination: "Delhi Distribution", status: "Active", distance: 1420, duration: "18h 30m", startTime: new Date(Date.now() - 3600000 * 5) },
+  { vehicleId: "FD-002", driver: "Rahul Sharma", origin: "Bangalore Hub", destination: "Chennai Port", status: "Active", distance: 350, duration: "5h 15m", startTime: new Date(Date.now() - 3600000 * 2) },
+  { vehicleId: "FD-005", driver: "Anita Patel", origin: "Pune Factory", destination: "Nagpur Depot", status: "Completed", distance: 720, duration: "9h 45m", startTime: new Date(Date.now() - 86400000), endTime: new Date(Date.now() - 86400000 + 3600000 * 10) },
+  { vehicleId: "FD-006", driver: "Vikram Joshi", origin: "Ahmedabad Terminal", destination: "Jaipur Hub", status: "Scheduled", distance: 650, duration: "8h 20m", startTime: new Date(Date.now() + 3600000 * 6) },
+  { vehicleId: "FD-003", driver: "Priya Singh", origin: "Hyderabad Center", destination: "Kolkata Depot", status: "Active", distance: 1520, duration: "20h 00m", startTime: new Date(Date.now() - 3600000 * 8) },
+  { vehicleId: "FD-004", driver: "Sunil Verma", origin: "Lucknow Hub", destination: "Kanpur Depot", status: "Completed", distance: 85, duration: "1h 30m", startTime: new Date(Date.now() - 172800000), endTime: new Date(Date.now() - 172800000 + 5400000) },
+  { vehicleId: "FD-007", driver: "Kavya Reddy", origin: "Coimbatore Hub", destination: "Madurai Facility", status: "Active", distance: 250, duration: "4h 00m", startTime: new Date(Date.now() - 3600000) },
+  { vehicleId: "FD-008", driver: "Manoj Kumar", origin: "Kolkata Port", destination: "Bhubaneswar Hub", status: "Active", distance: 440, duration: "6h 30m", startTime: new Date(Date.now() - 3600000 * 3) },
+  { vehicleId: "FD-009", driver: "Deepa Nair", origin: "Madurai Facility", destination: "Chennai Central Depot", status: "Completed", distance: 460, duration: "6h 45m", startTime: new Date(Date.now() - 259200000), endTime: new Date(Date.now() - 259200000 + 24300000) },
+  { vehicleId: "FD-011", driver: "Sneha Gupta", origin: "Jaipur Hub", destination: "Delhi Distribution", status: "Active", distance: 280, duration: "4h 15m", startTime: new Date(Date.now() - 3600000 * 4) },
+  { vehicleId: "FD-012", driver: "Rajesh Singh", origin: "Surat Hub", destination: "Mumbai Hub", status: "Completed", distance: 290, duration: "5h 00m", startTime: new Date(Date.now() - 345600000), endTime: new Date(Date.now() - 345600000 + 18000000) },
+  { vehicleId: "FD-013", driver: "Meena Kumari", origin: "Goa Port", destination: "Bengaluru Depot", status: "Active", distance: 560, duration: "8h 30m", startTime: new Date(Date.now() - 3600000 * 6) },
+  { vehicleId: "FD-015", driver: "Lakshmi Menon", origin: "Trichy Hub", destination: "Coimbatore Hub", status: "Scheduled", distance: 180, duration: "3h 00m", startTime: new Date(Date.now() + 3600000 * 12) },
+  { vehicleId: "FD-001", driver: "Arun Kumar", origin: "Delhi Distribution", destination: "Jaipur Hub", status: "Completed", distance: 280, duration: "4h 30m", startTime: new Date(Date.now() - 432000000), endTime: new Date(Date.now() - 432000000 + 16200000) },
+  { vehicleId: "FD-002", driver: "Rahul Sharma", origin: "Chennai Port", destination: "Bangalore Hub", status: "Completed", distance: 350, duration: "5h 15m", startTime: new Date(Date.now() - 518400000), endTime: new Date(Date.now() - 518400000 + 18900000) },
+  { vehicleId: "FD-003", driver: "Priya Singh", origin: "Kolkata Depot", destination: "Bhubaneswar Hub", status: "Completed", distance: 440, duration: "6h 30m", startTime: new Date(Date.now() - 604800000), endTime: new Date(Date.now() - 604800000 + 23400000) },
+  { vehicleId: "FD-005", driver: "Anita Patel", origin: "Nagpur Depot", destination: "Nashik Hub", status: "Scheduled", distance: 380, duration: "5h 45m", startTime: new Date(Date.now() + 3600000 * 24) },
+  { vehicleId: "FD-006", driver: "Vikram Joshi", origin: "Jaipur Hub", destination: "Udaipur Terminal", status: "Completed", distance: 260, duration: "4h 00m", startTime: new Date(Date.now() - 691200000), endTime: new Date(Date.now() - 691200000 + 14400000) },
+  { vehicleId: "FD-008", driver: "Manoj Kumar", origin: "Bhubaneswar Hub", destination: "Ranchi Depot", status: "Scheduled", distance: 320, duration: "5h 00m", startTime: new Date(Date.now() + 3600000 * 48) },
+  { vehicleId: "FD-011", driver: "Sneha Gupta", origin: "Delhi Distribution", destination: "Chandigarh Hub", status: "Completed", distance: 250, duration: "4h 00m", startTime: new Date(Date.now() - 777600000), endTime: new Date(Date.now() - 777600000 + 14400000) }
+];
+
+// ============ ALERTS (10 records) ============
+const alerts = [
+  { type: "Overspeed", message: "Vehicle FD-001 exceeded 90 km/h", severity: "High", vehicleId: "FD-001", acknowledged: false },
+  { type: "Low Fuel", message: "FD-002 fuel level below 20%", severity: "Medium", vehicleId: "FD-002", acknowledged: false },
+  { type: "Maintenance Due", message: "FD-003 service overdue", severity: "Critical", vehicleId: "FD-003", acknowledged: true },
+  { type: "Geofence", message: "FD-001 exited designated zone", severity: "Medium", vehicleId: "FD-001", acknowledged: false },
+  { type: "Engine Warning", message: "FD-004 check engine light", severity: "High", vehicleId: "FD-004", acknowledged: false },
+  { type: "Battery Low", message: "FD-005 battery voltage low", severity: "Medium", vehicleId: "FD-005", acknowledged: true },
+  { type: "Overspeed", message: "FD-007 exceeded 95 km/h", severity: "High", vehicleId: "FD-007", acknowledged: false },
+  { type: "Tire Pressure", message: "FD-008 tire pressure below recommended", severity: "Low", vehicleId: "FD-008", acknowledged: false },
+  { type: "Critical Temperature", message: "FD-010 engine temperature critical", severity: "Critical", vehicleId: "FD-010", acknowledged: false },
+  { type: "Vehicle Offline", message: "FD-014 went offline unexpectedly", severity: "High", vehicleId: "FD-014", acknowledged: false }
+];
+
+// ============ FUEL RECORDS (20 records) ============
+const fuelRecords = [
+  { vehicleId: "FD-001", litres: 45, cost: 4500, date: new Date(Date.now() - 86400000), efficiency: 12.5, mileage: 560, station: "HP Petrol Pump Mumbai" },
+  { vehicleId: "FD-002", litres: 38, cost: 3800, date: new Date(Date.now() - 172800000), efficiency: 11.8, mileage: 449, station: "Indian Oil Bangalore" },
+  { vehicleId: "FD-003", litres: 52, cost: 5200, date: new Date(Date.now() - 259200000), efficiency: 13.2, mileage: 686, station: "BP Delhi" },
+  { vehicleId: "FD-004", litres: 30, cost: 3000, date: new Date(Date.now() - 345600000), efficiency: 10.5, mileage: 315, station: "HP Ahmedabad" },
+  { vehicleId: "FD-005", litres: 48, cost: 4800, date: new Date(Date.now() - 432000000), efficiency: 12.0, mileage: 576, station: "Indian Oil Pune" },
+  { vehicleId: "FD-006", litres: 42, cost: 4200, date: new Date(Date.now() - 518400000), efficiency: 12.8, mileage: 538, station: "BP Chennai" },
+  { vehicleId: "FD-007", litres: 35, cost: 3500, date: new Date(Date.now() - 604800000), efficiency: 11.2, mileage: 392, station: "HP Hyderabad" },
+  { vehicleId: "FD-008", litres: 50, cost: 5000, date: new Date(Date.now() - 691200000), efficiency: 12.5, mileage: 625, station: "Indian Oil Kolkata" },
+  { vehicleId: "FD-009", litres: 28, cost: 2800, date: new Date(Date.now() - 777600000), efficiency: 13.5, mileage: 378, station: "BP Madurai" },
+  { vehicleId: "FD-010", litres: 55, cost: 5500, date: new Date(Date.now() - 864000000), efficiency: 10.8, mileage: 594, station: "HP Coimbatore" },
+  { vehicleId: "FD-011", litres: 40, cost: 4000, date: new Date(Date.now() - 950400000), efficiency: 12.0, mileage: 480, station: "Indian Oil Jaipur" },
+  { vehicleId: "FD-012", litres: 32, cost: 3200, date: new Date(Date.now() - 1036800000), efficiency: 13.0, mileage: 416, station: "BP Surat" },
+  { vehicleId: "FD-013", litres: 46, cost: 4600, date: new Date(Date.now() - 1123200000), efficiency: 11.5, mileage: 529, station: "HP Goa" },
+  { vehicleId: "FD-015", litres: 36, cost: 3600, date: new Date(Date.now() - 1209600000), efficiency: 12.2, mileage: 439, station: "Indian Oil Trichy" },
+  { vehicleId: "FD-001", litres: 42, cost: 4200, date: new Date(Date.now() - 1296000000), efficiency: 12.8, mileage: 538, station: "HP Petrol Pump Mumbai" },
+  { vehicleId: "FD-002", litres: 35, cost: 3500, date: new Date(Date.now() - 1382400000), efficiency: 12.0, mileage: 420, station: "Indian Oil Bangalore" },
+  { vehicleId: "FD-003", litres: 48, cost: 4800, date: new Date(Date.now() - 1468800000), efficiency: 13.5, mileage: 648, station: "BP Delhi" },
+  { vehicleId: "FD-005", litres: 44, cost: 4400, date: new Date(Date.now() - 1555200000), efficiency: 11.8, mileage: 519, station: "Indian Oil Pune" },
+  { vehicleId: "FD-006", litres: 40, cost: 4000, date: new Date(Date.now() - 1641600000), efficiency: 13.0, mileage: 520, station: "BP Chennai" },
+  { vehicleId: "FD-008", litres: 47, cost: 4700, date: new Date(Date.now() - 1728000000), efficiency: 12.3, mileage: 578, station: "Indian Oil Kolkata" }
+];
+
+// ============ GEOFENCES (5 records) ============
+const geofences = [
+  { name: "Chennai Depot Zone", type: "circle", center: { lat: 13.0827, lng: 80.2707 }, radius: 2000, vehicleIds: ["FD-006", "FD-009"], alertOnExit: true, active: true },
+  { name: "Bengaluru Tech Park", type: "circle", center: { lat: 12.9716, lng: 77.5946 }, radius: 1500, vehicleIds: ["FD-002"], alertOnExit: true, active: true },
+  { name: "Mumbai Port Area", type: "circle", center: { lat: 19.076, lng: 72.877 }, radius: 3000, vehicleIds: ["FD-001", "FD-012"], alertOnExit: true, active: true },
+  { name: "Hyderabad Highway", type: "circle", center: { lat: 17.385, lng: 78.4867 }, radius: 5000, vehicleIds: ["FD-007", "FD-013"], alertOnExit: true, active: true },
+  { name: "Delhi Distribution Center", type: "circle", center: { lat: 28.613, lng: 77.209 }, radius: 2500, vehicleIds: ["FD-003", "FD-011"], alertOnExit: true, active: true }
+];
+
+// ============ NOTIFICATIONS (10 records) ============
+const notifications = [
+  { title: "Overspeed Alert", message: "Vehicle FD-001 exceeded speed limit on Highway 48", type: "warning", read: false, vehicleId: "FD-001", link: "/alerts" },
+  { title: "Maintenance Due", message: "FD-003 is overdue for scheduled maintenance", type: "critical", read: false, vehicleId: "FD-003", link: "/maintenance" },
+  { title: "Trip Completed", message: "Trip from Pune to Nagpur completed successfully", type: "success", read: false, vehicleId: "FD-005", link: "/trips" },
+  { title: "Low Fuel Warning", message: "FD-002 fuel level below 20%", type: "warning", read: true, vehicleId: "FD-002", link: "/alerts" },
+  { title: "New Work Order", message: "Brake inspection work order created for FD-001", type: "info", read: false, vehicleId: "FD-001", link: "/work-orders" },
+  { title: "Document Expiring", message: "Insurance for FD-002 expires in 180 days", type: "warning", read: true, vehicleId: "FD-002", link: "/documents" },
+  { title: "Driver Available", message: "Driver Priya Singh is now available for assignment", type: "info", read: true, link: "/drivers" },
+  { title: "Geofence Breach", message: "FD-001 exited the Mumbai Port Area zone", type: "warning", read: false, vehicleId: "FD-001", link: "/alerts" },
+  { title: "Cost Report Ready", message: "Monthly cost analysis report is available", type: "info", read: true, link: "/cost-analytics" },
+  { title: "Battery Alert", message: "FD-005 battery voltage is low", type: "warning", read: false, vehicleId: "FD-005", link: "/alerts" }
 ];
 
 // ============ COSTS (10 records) ============
@@ -148,17 +253,83 @@ const seedCosts = async () => {
   }
 };
 
+const seedDrivers = async () => {
+  for (const d of drivers) {
+    const exists = await Driver.findOne({ name: d.name, licenseNumber: d.licenseNumber });
+    if (!exists) {
+      await Driver.create(d);
+      console.log(`Created driver: ${d.name}`);
+    }
+  }
+};
+
+const seedTrips = async () => {
+  for (const t of trips) {
+    const exists = await Trip.findOne({ vehicleId: t.vehicleId, origin: t.origin, destination: t.destination, startTime: t.startTime });
+    if (!exists) {
+      await Trip.create(t);
+      console.log(`Created trip: ${t.vehicleId} - ${t.origin} to ${t.destination}`);
+    }
+  }
+};
+
+const seedAlerts = async () => {
+  for (const a of alerts) {
+    const exists = await Alert.findOne({ type: a.type, vehicleId: a.vehicleId, message: a.message });
+    if (!exists) {
+      await Alert.create(a);
+      console.log(`Created alert: ${a.type} - ${a.vehicleId}`);
+    }
+  }
+};
+
+const seedFuel = async () => {
+  for (const f of fuelRecords) {
+    const exists = await Fuel.findOne({ vehicleId: f.vehicleId, date: f.date, litres: f.litres });
+    if (!exists) {
+      await Fuel.create(f);
+      console.log(`Created fuel record: ${f.vehicleId} - ${f.litres}L`);
+    }
+  }
+};
+
+const seedGeofences = async () => {
+  for (const g of geofences) {
+    const exists = await Geofence.findOne({ name: g.name });
+    if (!exists) {
+      await Geofence.create(g);
+      console.log(`Created geofence: ${g.name}`);
+    }
+  }
+};
+
+const seedNotifications = async () => {
+  for (const n of notifications) {
+    const exists = await Notification.findOne({ title: n.title, message: n.message });
+    if (!exists) {
+      await Notification.create(n);
+      console.log(`Created notification: ${n.title}`);
+    }
+  }
+};
+
 const run = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
     console.log('MongoDB connected for seeding...\n');
     await seedVehicles();
     await seedUsers();
+    await seedDrivers();
+    await seedTrips();
+    await seedAlerts();
+    await seedFuel();
     await seedDepots();
     await seedIncidents();
     await seedWorkOrders();
     await seedDocuments();
     await seedCosts();
+    await seedGeofences();
+    await seedNotifications();
     console.log('\nSeeding complete');
   } catch (err) {
     console.error('Seeding failed:', err.message);
