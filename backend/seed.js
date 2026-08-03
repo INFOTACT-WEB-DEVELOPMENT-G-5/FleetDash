@@ -195,11 +195,18 @@ const seedVehicles = async () => {
 };
 
 const seedUsers = async () => {
-  const demo = { email: 'manager@fleetdash.com', password: 'password123', role: 'Manager' };
-  const exists = await User.findOne({ email: demo.email });
-  if (!exists) {
-    await User.create(demo);
-    console.log(`Created demo user: ${demo.email}`);
+  const demos = [
+    { name: 'Fleet Admin', email: 'admin@fleetdash.com', password: '123456', role: 'Admin' },
+    { name: 'Fleet Manager', email: 'manager@fleetdash.com', password: '123456', role: 'Manager' },
+    { name: 'Fleet Driver', email: 'driver@fleetdash.com', password: '123456', role: 'Driver' },
+  ];
+
+  for (const demo of demos) {
+    const exists = await User.findOne({ email: demo.email });
+    if (!exists) {
+      await User.create(demo);
+      console.log(`Created demo user: ${demo.email}`);
+    }
   }
 };
 

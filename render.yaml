@@ -1,0 +1,40 @@
+# FleetDash — Render Blueprint
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Recommended: ONE Web Service that serves API + built React app.
+# Free Redis is optional (Upstash). App works without Redis via Socket.io direct emit.
+
+services:
+  - type: web
+    name: fleetdash
+    runtime: node
+    plan: free
+    region: oregon
+    buildCommand: |
+      cd frontend && npm install && npm run build &&
+      cd ../backend && npm install
+    startCommand: cd backend && npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: JWT_SECRET
+        generateValue: true
+      - key: MONGO_URI
+        sync: false
+      - key: REDIS_URL
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: SOCKET_ORIGIN
+        sync: false
+      - key: ENABLE_LIVE_SIMULATOR
+        value: "true"
+      - key: SIMULATOR_INTERVAL_MS
+        value: "3000"
+      - key: VITE_API_URL
+        sync: false
+      - key: VITE_SOCKET_URL
+        sync: false

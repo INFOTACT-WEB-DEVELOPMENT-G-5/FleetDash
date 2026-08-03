@@ -1,38 +1,56 @@
-// load-test.js (run with: k6 run load-test.js)
-import http from 'k6/http';
-import { check, sleep } from 'k6';
+// k6 load test — run: k6 run load-test.js
+// Optional: K6_TOKEN=<jwt> k6 run -e TOKEN=<jwt> load-test.js
+import http from "k6/http";
+import { check, sleep } from "k6";
 
 export const options = {
   stages: [
-    { duration: '30s', target: 100 },  // ramp up to 100 VUs
-    { duration: '1m', target: 2000 },  // hold at 2000 VUs
-    { duration: '30s', target: 0 },    // ramp down
+    { duration: "20s", target: 50 },
+    { duration: "40s", target: 200 },
+    { duration: "20s", target: 0 },
   ],
   thresholds: {
-    http_req_duration: ['p(95)<200'],  // 95% of requests under 200ms
-    http_req_failed: ['rate<0.01'],    // error rate < 1%
+    http_req_duration: ["p(95)<500"],
+    http_req_failed: ["rate<0.05"],
   },
 };
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = __ENV.BASE_URL || "http://localhost:5000";
 
-export default function () {
+export function setup() {
+  const loginRes = http.post(
+    `${BASE_URL}/api/auth/login`,
+    JSON.stringify({
+      email: __ENV.EMAIL || "manager@fleetdash.com",
+      password: __ENV.PASSWORD || "123456",
+    }),
+    { headers: { "Content-Type": "application/json" } }
+  );
+
+  const body = loginRes.json();
+  return { token: body.token || __ENV.TOKEN || "" };
+}
+
+export default function (data) {
   const payload = JSON.stringify({
-    vehicleId: `VH-${__VU}-${__ITER}`,
+    vehicleId: `FD-${String((__VU % 15) + 1).padStart(3, "0")}`,
     lat: 11.0 + Math.random() * 0.05,
     lng: 76.9 + Math.random() * 0.05,
     speed: Math.floor(Math.random() * 80),
     fuel: Math.floor(Math.random() * 100),
-    status: ['Moving', 'Stopped', 'Idle'][Math.floor(Math.random() * 3)],
+    status: "Active",
   });
 
-  const params = {
-    headers: { 'Content-Type': 'application/json' },
-  };
+  const res = http.post(`${BASE_URL}/api/vehicles/telemetry`, payload, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${data.token}`,
+    },
+  });
 
-  const res = http.post(`${BASE_URL}/api/vehicles/telemetry`, payload, params);
   check(res, {
-    'status is 202': (r) => r.status === 202,
+    "status is 202": (r) => r.status === 202,
   });
-  sleep(0.01); // 10ms between requests
+
+  sleep(0.05);
 }

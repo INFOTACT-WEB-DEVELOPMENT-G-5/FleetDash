@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Layout from "../components/Layout/Layout";
 import { alertsAPI } from "../services/api";
-import socket from "../services/socket";
+import { onAlert } from "../services/socket";
 
 function Alerts() {
   const [alerts, setAlerts] = useState([]);
@@ -45,21 +45,19 @@ function Alerts() {
   }, [fetchAlerts]);
 
   useEffect(() => {
-    socket.on("vehicleUpdate", (data) => {
-      if (data && data.type && data.type !== "analytics_tick") {
-        const alert = {
-          _id: `live_${Date.now()}`,
-          type: data.type,
-          message: data.message || `${data.type} alert`,
-          severity: data.severity || "Medium",
-          vehicleId: data.vehicleId,
-          createdAt: new Date(data.timestamp || Date.now()),
-          acknowledged: false
-        };
-        setLiveAlerts(prev => [alert, ...prev].slice(0, 20));
-      }
+    return onAlert((data) => {
+      if (!data) return;
+      const alert = {
+        _id: data._id || `live_${Date.now()}`,
+        type: data.type || "Geofence",
+        message: data.message || `${data.type} alert`,
+        severity: data.severity || "Medium",
+        vehicleId: data.vehicleId,
+        createdAt: new Date(data.createdAt || data.timestamp || Date.now()),
+        acknowledged: false,
+      };
+      setLiveAlerts((prev) => [alert, ...prev].slice(0, 20));
     });
-    return () => socket.off("vehicleUpdate");
   }, []);
 
   const allAlerts = [...liveAlerts, ...alerts].filter(

@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Layout from "../components/Layout/Layout";
 import { vehiclesAPI, alertsAPI, aiAPI } from "../services/api";
-import socket from "../services/socket";
+import { onVehicleUpdate, onAlert } from "../services/socket";
 import "./CommandCenter.css";
 
 function CommandCenter() {
@@ -48,11 +48,19 @@ function CommandCenter() {
   }, []);
 
   useEffect(() => {
-    socket.on("vehicleUpdate", () => {
-      setLiveEvents(prev => prev + 1);
-      loadData();
+    const unsubVehicles = onVehicleUpdate(() => {
+      setLiveEvents((prev) => prev + 1);
     });
-    return () => socket.off("vehicleUpdate");
+    const unsubAlerts = onAlert((alert) => {
+      setLiveEvents((prev) => prev + 1);
+      if (alert) {
+        setAlerts((prev) => [alert, ...prev].slice(0, 100));
+      }
+    });
+    return () => {
+      unsubVehicles();
+      unsubAlerts();
+    };
   }, []);
 
   const loadData = async () => {

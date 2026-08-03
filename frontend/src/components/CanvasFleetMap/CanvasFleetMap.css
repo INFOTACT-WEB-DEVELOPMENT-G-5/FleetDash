@@ -1,0 +1,30 @@
+.canvas-fleet-map {
+  padding: 0;
+  overflow: hidden;
+}
+
+.canvas-fleet-map__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+}
+
+.canvas-fleet-map__header h3 {
+  margin: 0;
+  font-size: 14px;
+  color: #e2e8f0;
+}
+
+.canvas-fleet-map__header span {
+  font-size: 11px;
+  color: #64748b;
+}
+
+.canvas-fleet-map__canvas {
+  width: 100%;
+  height: auto;
+  display: block;
+  background: #0b1220;
+}

@@ -1,251 +1,130 @@
 # FleetDash
-High-Throughput Event-Driven Fleet Telemetry Dashboard
 
+High-throughput event-driven fleet telemetry dashboard.
 
-# FleetDash Backend
-
-Backend service for FleetDash application built with Node.js, Express, Redis, MongoDB, Socket.IO, and worker processing.
-
-## Prerequisites
-
-Make sure the following are installed before running the backend:
-
-* Node.js and npm
-* MongoDB
-* Redis
-* WSL (Windows users, if using Redis through Linux environment)
-* k6 (for load testing)
+**Stack:** Node.js · Express · MongoDB · Redis · Socket.io · React · Leaflet · Canvas · Turf.js
 
 ---
 
-# Backend Setup
+## Quick start (local)
 
-## 1. Navigate to Backend Folder
+### 1. MongoDB
+Use local MongoDB or [MongoDB Atlas](https://www.mongodb.com/atlas) free cluster.
 
-From the project root:
-
+### 2. Backend
 ```bash
 cd backend
-```
-
----
-
-## 2. Install Dependencies
-
-Install all required Node.js packages:
-
-```bash
+cp .env.example .env
+# set MONGO_URI and JWT_SECRET
 npm install
-```
-
----
-
-# Redis Setup
-
-Redis is required for backend operations.
-
-## Install WSL (Windows Users)
-
-If you want to run Redis using a Linux environment, install WSL.
-
-Open **PowerShell as Administrator**:
-
-```powershell
-wsl --install
-```
-
-Restart your computer if prompted.
-
-After restarting, open the **Ubuntu application** (not PowerShell) and run:
-
-```bash
-sudo apt update
-sudo apt install redis-server
-sudo service redis-server start
-```
-
-Verify Redis is running:
-
-```bash
-redis-cli ping
-```
-
-Expected response:
-
-```
-PONG
-```
-
----
-
-# Running the Backend Server
-
-Make sure you are inside the backend directory:
-
-```bash
-cd backend
-```
-
-Start the backend in development mode:
-
-```bash
+npm run seed   # optional full demo dataset
 npm run dev
 ```
 
-This runs:
+API: `http://localhost:5000` · Health: `http://localhost:5000/api/health`
 
-```json
-"dev": "nodemon server.js"
+### 3. Frontend
+```bash
+cd frontend
+cp .env.example .env
+npm install
+npm run dev
 ```
 
-The backend server entry point is:
+UI: `http://localhost:5173`
 
-```
-server.js
+### Demo login
+| Email | Password |
+|-------|----------|
+| `admin@fleetdash.com` | `123456` |
+| `manager@fleetdash.com` | `123456` |
+| `driver@fleetdash.com` | `123456` |
+
+Redis is **optional**. Without Redis, realtime still works via Socket.io.
+
+---
+
+## Deploy on Render.com (recommended)
+
+### A) One Web Service (API + UI) — simplest
+
+1. Push this repo to GitHub.
+2. Create a free **MongoDB Atlas** cluster → Network Access `0.0.0.0/0` → copy connection string.
+3. (Optional) Create free **Upstash Redis** → copy `REDIS_URL` (`rediss://...`).
+4. In Render: **New → Blueprint** and select this repo (`render.yaml`), **or** **New → Web Service**:
+   - **Build command:**
+     ```bash
+     cd frontend && npm install && npm run build && cd ../backend && npm install
+     ```
+   - **Start command:**
+     ```bash
+     cd backend && npm start
+     ```
+5. Environment variables:
+
+| Key | Value |
+|-----|--------|
+| `NODE_ENV` | `production` |
+| `MONGO_URI` | Atlas URI |
+| `JWT_SECRET` | long random string |
+| `REDIS_URL` | Upstash URL (optional) |
+| `ENABLE_LIVE_SIMULATOR` | `true` |
+| `ALLOWED_ORIGINS` | `https://YOUR-APP.onrender.com` |
+| `SOCKET_ORIGIN` | `https://YOUR-APP.onrender.com` |
+
+6. After deploy, open the Render URL → login with demo accounts.
+7. First boot auto-seeds demo users + vehicles + geofences.
+
+> Free Render services sleep after inactivity; first request may take ~30–60s.
+
+### B) Docker (optional)
+```bash
+docker build -t fleetdash .
+docker run -p 5000:5000 \
+  -e MONGO_URI=... \
+  -e JWT_SECRET=... \
+  fleetdash
 ```
 
 ---
 
-## Production Start
+## Team roles
 
-To run the backend without nodemon:
+| Member | Guide |
+|--------|--------|
+| 2 — Realtime & Performance | [docs/MEMBER-2-Realtime-Performance.md](docs/MEMBER-2-Realtime-Performance.md) |
+| 4 — Security & Deployment | [docs/MEMBER-4-Security-Deployment.md](docs/MEMBER-4-Security-Deployment.md) |
+
+---
+
+## Key APIs
+
+| Method | Path | Notes |
+|--------|------|--------|
+| POST | `/api/auth/login` | JWT |
+| GET | `/api/vehicles` | Auth required |
+| POST | `/api/vehicles/telemetry` | High-frequency ingest |
+| GET/POST | `/api/ai/geofence` | Zones |
+| GET | `/api/alerts` | Alerts |
+| GET | `/api/health` | Health check |
+
+### Socket events
+- `vehicleUpdate` / `vehicleUpdateBinary` — live positions
+- `alert` — geofence / system alerts
+
+---
+
+## Scripts
 
 ```bash
+# backend
+npm run dev
 npm start
-```
-
-This runs:
-
-```json
-"start": "node server.js"
-```
-
----
-
-# Available npm Scripts
-
-| Command       | Description                         |
-| ------------- | ----------------------------------- |
-| `npm run dev` | Starts backend server using nodemon |
-| `npm start`   | Starts backend server using Node.js |
-
----
-
-# Load Testing Setup
-
-Load testing is performed using k6.
-
-## Install k6
-
-Install k6 using Chocolatey:
-
-Open PowerShell:
-
-```powershell
-choco install k6 -y
-```
-
----
-
-## Run Load Test
-
-Make sure the backend server is running.
-
-From the location containing `load-test.js`, run:
-
-```bash
+npm run seed
+npm test
 k6 run load-test.js
-```
 
----
-
-# Backend Dependencies
-
-Main technologies used:
-
-* Express.js - API server
-* Redis - Caching and queue operations
-* MongoDB - Database
-* Socket.IO - Real-time communication
-* Piscina - Worker thread management
-* Nodemon - Development server restart
-
----
-
-# Project Scripts
-
-`package.json`
-
-```json
-{
-  "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
-  }
-}
-```
-
----
-
-# Troubleshooting
-
-## Redis Connection Error
-
-Make sure Redis is running:
-
-```bash
-sudo service redis-server start
-```
-
-Check Redis status:
-
-```bash
-redis-cli ping
-```
-
-Expected:
-
-```
-PONG
-```
-
----
-
-## Backend Port Issue
-
-If the backend does not start, check whether another process is using the configured server port.
-
-Stop the existing process and restart:
-
-```bash
+# frontend
 npm run dev
-```
-
----
-
-# Development Flow
-
-1. Start Redis
-2. Navigate to backend folder
-
-```bash
-cd backend
-```
-
-3. Install dependencies
-
-```bash
-npm install
-```
-
-4. Start backend
-
-```bash
-npm run dev
-```
-
-5. Run load testing when required
-
-```bash
-k6 run load-test.js
+npm run build
 ```

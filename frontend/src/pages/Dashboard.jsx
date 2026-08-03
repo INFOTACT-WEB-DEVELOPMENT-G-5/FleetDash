@@ -20,16 +20,12 @@ from "../components/LiveAlerts/LiveAlerts";
 import LiveMap 
 from "../components/LiveMap/LiveMap";
 
+import CanvasFleetMap
+from "../components/CanvasFleetMap/CanvasFleetMap";
+
 
 import useVehicles 
 from "../hooks/useVehicles";
-
-
-import { useEffect } from "react";
-
-
-import socket 
-from "../services/socket";
 
 
 
@@ -38,41 +34,8 @@ function Dashboard(){
 
     const {
         vehicles,
-        loading,
-        refresh
+        loading
     } = useVehicles();
-
-
-
-
-    useEffect(()=>{
-
-
-        socket.on(
-            "vehicleUpdate",
-            ()=>{
-
-
-                refresh();
-
-
-            }
-        );
-
-
-
-        return()=>{
-
-
-            socket.off(
-                "vehicleUpdate"
-            );
-
-
-        };
-
-
-    },[]);
 
 
 
@@ -195,7 +158,9 @@ function Dashboard(){
 
                 />
 
-
+                <div style={{ marginTop: 24 }}>
+                  <CanvasFleetMap vehicles={vehicles} />
+                </div>
 
             </>
 

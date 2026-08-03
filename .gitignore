@@ -17,3 +17,5 @@ backend/dist/
 .env.test
 backend/.env
 frontend/.env.production
+.docs
+docs/
